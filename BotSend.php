@@ -12,7 +12,7 @@ $chat = array("Message"=>$_GET['msg'],"Channel"=>$_GET['name'], "Sender"=>$_GET[
 
 $name = $_GET['sender'];
 
-$version = new Version2X("http://localhost:2001");
+$version = new Version2X("https://frozen-falls-28329.herokuapp.com/");
 
 $client = new  Client($version);
 

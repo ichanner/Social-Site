@@ -194,7 +194,7 @@ div.msgbox {
   <script>
   
 
-  var socket = io.connect("http://localhost:2001");
+  var socket = io.connect("https://frozen-falls-28329.herokuapp.com/");
 
 
   socket.on("new_msg",function(data){

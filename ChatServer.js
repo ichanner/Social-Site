@@ -1,17 +1,21 @@
 
-var socket = require('socket.io'),
-	express = require('express'),
-	https = require('https'),
-	http = require('http'),
-	port = 2001,
-	logger = require('winston');
+var express = require('express');
+var https = require('https');
+var http = require('http');
+var app = express();
+
+var http_server = http.createServer(app).listen(process.env.PORT || 5000);
+
+var socket = require('socket.io').listen(server);
+
+var logger = require('winston');
 
 
 
 
 logger.remove(logger.transports.Console);
 logger.add(logger.transports.Console,{ colorize: true, timestamp: true});
-logger.info('SocketIO > listening on port '+port);
+logger.info('SocketIO > listening on port 2002');
 
 
 const Discord = require("discord.js");
@@ -21,8 +25,6 @@ const channel_id = '709990380204195892';
 const websocket_id = '710016789387411487';
 const token = 'NzIwNTI1NDQxNjcyMTUxMTMz.XuHPxw.TQc23v7w5lAksXdFV0P6Ya0hcp8';
 
-var app = express();
-var http_server = http.createServer(app).listen(port);
 
 
 function emitNewOrder(http_server){
