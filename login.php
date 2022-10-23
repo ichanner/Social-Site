@@ -48,7 +48,7 @@ ini_set('display_errors', 0);
 $error = NULL;
 //for web request
 
-//if (isset($_POST['submit'])){
+if (isset($_POST['submit'])){
 	//$con = NEW MySQLi('localhost', 'id12635463_dev', 'fort4572', 'id12635463_mega');
 	$con = NEW MySQLi('localhost', 'root', '', 'megatowel');
 	$u = $con-> real_escape_string($_POST['u']);
@@ -72,7 +72,7 @@ $error = NULL;
 		if($verified == 1){
 			if (isset($_POST['u'])){
 			$u = $_POST['u'];
-			//$url = "Profile.php";
+			$url = "Profile.php";
 			$url = "Profile.php?u=" . $u;
 			$_SESSION['logged_in']='1';
 			$_SESSION['u']=$u;
@@ -96,7 +96,7 @@ $error = NULL;
     if(isset($_COOKIE['u'])){ setcookie("u","");}
     {
 
-    	//header('Location: ' . $url);
+      header('Location: ' . $url);
     }
     
     }
@@ -125,7 +125,7 @@ else{
    // $error = "Error";
 	
 }
-//}
+}
 
 
 

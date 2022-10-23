@@ -3,14 +3,18 @@
 
 
 
+session_start();
 
-
-
+error_reporting(0);
 echo "<span id=nav></span>";
 echo "<div class=container>";
 echo "<div class=bars>";
 
-
+$id = $_SESSION['id'];
+$chat_name = $_GET['name'];
+$con_chat = NEW MySQLi('localhost', 'root', '', 'megatowel_chat');
+$con = NEW MySQLi('localhost', 'root', '', 'megatowel');
+$con_group = NEW MySQLi('localhost', 'root', '', 'megatowel_groupchat');
 
 
 $fetch = $con_chat->query("SELECT * FROM message_count WHERE id = $chat_name");

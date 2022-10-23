@@ -1,366 +1,427 @@
-<?php
 
-ob_start();
-session_start();
-error_reporting(0);
-ini_set('display_errors', 0);
-
-include ("ProfileParent.php");
-
-
-if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 1000)) {
-
-    session_unset();     
-    session_destroy();   
-    header('Location:SessionExpired.php');
-    $con->query("UPDATE accounts SET Online = 0 WHERE Token = '$token'");
-}
-$_SESSION['LAST_ACTIVITY'] = time();
-
-
-if(!isset($_SESSION['logged_in'])){
-  
-    exit("Failed to authenticate user!");
-}
-
-else{
-
-	
-	$con = NEW MySQLi('localhost', 'root', '', 'megatowel');
-	$token = $_SESSION['user'];
-
-  $online = $con->query("UPDATE `accounts` SET `Online` = '1' WHERE Token = '$token'"); 
-
-	$grab = $con->query("SELECT * FROM accounts WHERE Token = '$token'");
-	$row = $grab->fetch_assoc();
-  $Profile = new User($row['username'],$row['Tag'],$row['date'],$row['Image'],$row['id'],$row['email'],$row['Bio'],$row['Member']);
-  
-if($grab->num_rows != 0 && $Profile->get_verified()){
-    
-
-    echo $Profile->get_profile();
-    $notify = $con->query("SELECT * FROM request WHERE Reciever = '$id'");
-    $notification = $notify->num_rows;
-    $con->query("UPDATE accounts SET notifications = $notification WHERE username = '$us'");
-	   	
-	}
-
-
-
-	else{
-			
-		   // header("Location: User_error.php");
-	    	//die();
-		}
-    	
-
-
-	  
-?>
+<!DOCTYPE html>
 
 <html>
 
-<style>
+<head>
 
 
-img {
-  border-radius: 25%;
-}
+</head>
 
-img.none{
+ <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.1.0/video-js.css" rel="stylesheet">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.1.0/video.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.1/Youtube.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.1/Youtube.js"></script>
 
+ <video  muted id="player" res='1080' src="https://vjs.zencdn.net/v/oceans.mp4" class="video-js" controls preload="auto" width="640" height="264">
+    <source id="mp4" src="https://vjs.zencdn.net/v/oceans.mp4" type='video/mp4'>
+ </video>
 
-  position: absolute;
-  top:10;
-  left:20;
-  border-radius: 0%;
-}
 
 
-img.favicon{
-
- border-radius: 25%;
- position: absolute;
- right:55;
- top:20;
-
-}
-
-::-webkit-scrollbar {
-  width: 0px; 
-  background: transparent;  
-}
-
-div.profile {
- overflow-y: auto;
- position: fixed;
- top: 100;
- width: 300px;
- height: 450px;
- border-radius: 5px;
- background-color:  #333333;
- padding: 20px;
- width:300px; 
-}
-
-
-div.request {
- overflow-y: auto;
- position: fixed;
- top: 100;
- width: 300px;
- height: 500px;
- border-radius: 5px;
- background-color:  #262626;
- padding: 20px;
- width:300px; 
-
-}
-
-
-div.notify {
-
-  overflow-y: auto;
-  position: fixed;
-  top:100;
-  left:930;
-  border-radius: 5px;
-  background-color:  #333333;
-  padding: 20px;
-  width: 300px;
-  height: 450px;
-}
-
-
-h2{
-  line-height: 0.1;
-}
-
-small{
-  line-height: 0.1;
-}
-
-
-
-
-div.red{
-
-  border-radius: 50%;
-  background-color: red;
-     position: absolute;
-     height:30;
-     width:30;
-    right:120;
-  top:5;
-}
-
-
-input[type=text], select {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  height: 40;
-  width:400;
-    position: absolute;
-    right:470;
-  top:15;
-
- 
-}
-
-input[type=submit] {
-  width: 100%;
-  background-color:#bf00ff;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  width:100;
-  
-
-}
-
-
-
-input[type=submit]:hover {
-  background-color: #8000ff;
-}
-
-body{
-
-  overflow-y: hidden;
-}
-
-
-
-button {
-  width: 25%;
-  background-color:#bf00ff;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
- button:hover {
-  background-color: #8000ff;
-}
-
-
-
-.flex-container {
-  display: flex;
-  background-color: DodgerBlue;
-}
-
-.bell{
-
-    position: absolute;
-  top:25;
-  left:1100
-}
-
-.flex-container > div {
-  
-  
-  padding: 20px;
-
-}
-
-div.sub{
-
-  border-radius: 5px;
-  background-color: #262626;
-  padding: 20px;
-}
-
-div.bar{
-
- position: absolute;
-  top:0;
-  left:5;
-  border-radius: 5px;
-  background-color:  #333333;
-  padding: 20px;
-  width: 1230px;
-  height: 50px;
-}
-
-.not{
-
-   position: absolute;
-  top:-10;
-  left:1130;
-
-}
-
-
-a:link{
-
-  text-decoration: none;
-    color:white;
-
-}
-
-a:visited{
-
-    color:white;
-}
-
-a:hover{
-
-  text-decoration: underline;
-}
-
-a:active{
-
-  color:purple;
-}
-
-input.search{
-
-  width: 100%;
-  background-color:#bf00ff;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  width:100;
-  position: absolute;
-  right:365;
-  top:14;
-}
-
-div.fixed{
-            
-  position: absolute;
-  left: 500px;
-   top: 0px;
-}
-
-</style>
-
-
-
-<body bgcolor=#4d4d4d>
- 
-
-
-  <script> $jq132 = jQuery.noConflict(true); </script>
-
-  <span id="nav"></span>
-  
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
-  <script>
-
-    $(document).ready(function(){
-
-
-         $.ajax({
-
-              url:"NavBar.php",
-              type:"post",
-              data:{search: $(this).val()},
-              success:function(result){
-
-                $("#nav").html(result);
-              }
-          });
-      });
-
-</script>
-
-
-<script>
-  
-document.getElementById("edit").onclick = function() {edit()};
-
-function edit() {
-    
-    window.location.href = 'Settings.php';
-}
-
-</script>
-
-
-</body>
 </html>
+
+
 
 <?php
 
-  }
+//TODO:
+//Chat
+//People list
+//Front End
 
-  include('NavBar.php');
+error_reporting(0);
+include("vendor/autoload.php");
+
+use ElephantIO\Client;
+use ElephantIO\Engine\SocketIO\Version2X;
+
+session_start();
+
+$_SESSION['id'] = uniqid();
+
+if($_SESSION['room'] != $_GET['room']){
+
+  unset($_SESSION['owner']);
+}
+else{
+
+  $_SESSION['owner'] = true;
+}
+
+
+
+$url = '';
+$owner = $_SESSION['owner'];
+$currentRoom = $_GET['room'];
+$id = $_SESSION['id'];
+
+$version = new Version2X("https://lit-fjord-99581.herokuapp.com/");
+$client = new Client($version);
+$client->initialize();
+
+if(isset($_POST["uploadfile"])){
+
+  $video = $_FILES['file']['tmp_name'];
+  $videoName = $_FILES['file']['name'];
+  $videoSize = $_FILES['file']['size'];
+  $fileExt = explode('.', $videoName);
+  $fileRealExt = strtolower(end($fileExt));
+
+  $allowed = array('mp4', 'webm', 'mov', 'ogv');
+
+  if(in_array($fileRealExt, $allowed)){
+
+    if($vieoSize < 1000000){
+
+      $newName = uniqid('', true).".".$fileRealExt;
+      $tar = "videos/".$newName;
+
+      if (move_uploaded_file($_FILES['file']['tmp_name'], $tar)) {
+      
+      }
+      else{
+
+        echo "Error uploading video";
+      }
+    
+
+        $url = "https://coachsfinest.com/Streaming/videos/".$newName;
+
+        $client->emit("changeVideo", array("Video" => $url, "Room"=> $currentRoom));
+
+        ?>
+
+        <script>
+    
+          document.getElementById("mp4").setAttribute("src", <?php echo json_encode($url) ?>);
+
+        </script>
+
+        <?php
+
+    }
+    else{
+
+       echo "Video can not be over 100mb!";
+    }
+  }
+  else{
+
+    echo "Video format is not supported!";
+  }
+}
+
+if(isset($_POST['submit'])){
+
+  $url =  $_POST['url'];
+
+  $client->emit("changeVideo", array("Video" => $url, "Room"=> $currentRoom));
+
+  ?>
+
+  <script>
+    
+    document.getElementById("mp4").setAttribute("src", <?php echo json_encode($url) ?>);
+
+  </script>
+
+
+  <?php
+
+}
+
 
 ?>
+
+
+<style>
+  
+.vjs-tech {
+  pointer-events: none;
+}
+
+
+</style>
+
+<html>
+
+<form id="myForm" method="post">
+
+<input type="text" name="url" required placeholder="Enter URL">
+
+<input type="submit" name="submit"  value="Change Video">
+
+</form>
+
+<form id="upload" enctype="multipart/form-data" method="post">
+  
+<input type ="file" required name='file'>
+
+<input type="submit" name="uploadfile" value="Upload File">
+
+</form>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+
+
+
+<script>
+
+var currentRoom = <?php echo json_encode($currentRoom) ?>;
+var owner = <?php echo json_encode($owner) ?>;
+var id = <?php echo json_encode($id) ?>;
+var paused = true;
+var started = false;
+var ready = false;
+var socket = io.connect("https://lit-fjord-99581.herokuapp.com/");
+
+
+console.log("Connected to room: " + currentRoom);
+
+
+if(owner){
+
+  socket.emit("changeVideo", {Video:  document.getElementById("mp4").getAttribute("src"), Room: currentRoom});
+  document.getElementById("myForm").style.display = "block";
+}
+else{
+  
+  socket.emit('reqCatchUp', id, currentRoom);
+
+  videojs('player').controlBar.playToggle.disable();
+  videojs('player').controlBar.progressControl.disable();
+  videojs('player').bigPlayButton.disable();
+
+  document.getElementById("myForm").style.display = "none";
+  document.getElementById("upload").style.display = "none";
+}
+
+socket.on("connect", () => {
+
+  socket.emit('reqCatchUp', id, currentRoom);
+  
+});
+
+
+videojs('player').ready(function() {
+            
+    var player = this;    
+    
+    player.controlBar.playToggle.on('mouseup', function(event){
+        
+        if(owner && paused){
+            
+          ///socket.emit("pause", false, currentRoom);
+        
+        }
+    });
+    
+    player.bigPlayButton.on('mouseup', function(event){
+        
+        if(owner){
+            
+          //socket.emit("pause", false, currentRoom);
+        }
+    });
+    
+    player.controlBar.progressControl.seekBar.on('mousedown', function(event) {
+         
+         if(owner){ 
+            
+            socket.emit("update", player.currentTime(), currentRoom);
+         }
+    });
+
+    player.on("pause", function(){
+      
+      
+    });
+
+    player.on("play", function(){
+        
+      started = true;
+      
+    });
+
+    player.controlBar.progressControl.on('mouseup', function(event) {
+                 
+        if(owner){
+        
+            socket.emit("update", player.currentTime(), currentRoom);
+        }
+               
+    });
+
+    player.on("ended", function(){
+      
+      player.pause();
+      socket.emit("pause", player.paused(), currentRoom);
+    
+    });
+    
+    setInterval(function(){
+        
+        socket.emit("pause", player.paused(), currentRoom);
+        
+    }, 100);
+    
+    setInterval(function(){
+        
+      if(player.readyState() == 1){
+
+          ready = false;
+      }
+      if(player.readyState() == 4 && !ready){
+
+        console.log("Video loaded!");
+        
+        socket.emit('reqFinishLoad', id, currentRoom);
+        
+        ready = true;   
+      }
+      
+    },1000);
+
+
+
+
+  socket.on('changeVideo', function(data){
+
+    if(data.Room == currentRoom){
+
+      player.src([
+
+            {type: "video/mp4", src: data.Video}
+        
+        ]);
+    }
+  })
+
+   socket.on('reqFinishLoad', function(userId, room){
+      
+      if(room == currentRoom && owner){ 
+        
+        socket.emit('finishLoad',userId, player.currentTime(), currentRoom);
+      }
+   })
+
+   socket.on('reqCatchUp', function(userId,room){
+
+    if(room == currentRoom && owner){
+
+      var url = document.getElementById("mp4").getAttribute("src");
+
+      socket.emit('catchUp', userId, player.currentTime(), url, player.paused(), started, currentRoom);
+    }
+
+  })
+
+
+  socket.on('finishLoad', function(userId, time, room){
+
+       if(userId == id && room == currentRoom && !owner){
+            
+            player.currentTime(time);
+
+            ready = true;
+       }
+
+       if(owner){ 
+        
+        setTimeout(function(){
+
+          socket.emit("update", player.currentTime(), currentRoom);         
+
+        }, 3000); 
+      }
+
+  })
+
+
+  socket.on('catchUp', function(userId, time, video, pause, started, room){
+
+    if(userId == id && room == currentRoom && !owner){
+
+        player.src([
+
+            {type: "video/mp4", src: video}
+        
+        ]);     
+
+        player.currentTime(time);
+
+        if(started){
+          
+          if(pause){
+             
+              player.pause();
+          }
+          else{
+              
+            player.play();  
+          }
+        }
+      }
+
+      if(owner){ 
+        
+        setTimeout(function(){
+
+          socket.emit("update", player.currentTime(), currentRoom);
+
+        }, 3000); 
+      }
+  })
+
+  socket.on("pause", function(pause,room){
+
+    if(room == currentRoom){ 
+    
+        if(!owner){
+      
+          if(pause){
+
+            player.pause();
+          }
+          else{
+              
+              player.play();          
+          }
+              
+            if(owner){     
+              
+              setTimeout(function(){
+
+                  socket.emit("update", player.currentTime(), currentRoom);
+
+                }, 3000);
+              }
+            }
+     }  
+  })
+
+  socket.on('update', function(time,room){
+
+      if(room == currentRoom){
+
+        if(!owner){
+
+          player.currentTime(time);
+          
+        }
+    }
+  })
+
+});
+
+
+</script>
+
+</html>9) balance: 2KCl + H2SO4  K2SO4 + 2HCl. Is Soluble
+10) balance: NaCI + H2O. Products: NaCl. Not soluable
+11) balance: 2Fe(OH)3 + 3BaBr2. Products: BaBr2, Fe(OH)3. Not soluable 
+12) balance: 3NaCl + FePO4. Products: NaCl, FePO4 .Not soluable 
+13)
+14)

@@ -6,9 +6,13 @@ session_start();
 if(isset($_POST['submit'])){
     
   $name =  $_POST['cu'];
-  //$id = $_POST['id'];
+  $icon = $_POST['icon'];
+  $id = uniqid(5);
+
   
   $_SESSION['name']=$name;
+  $_SESSION['avatar']=$icon;
+  $_SESSION['id']=$id;
 
   header('Location: '."Chat");
   //header('Location: '."Chat?id=".$id);
@@ -70,6 +74,7 @@ input[type=text].poop {
     
     
     <input type="TEXT"  autocomplete="off" class="poop" placeholder = "What's your name?" id = "cu" name ="cu" required/>
+     <input type="TEXT"  autocomplete="off" class="poop" placeholder = "Avatar Url (Optional)" id = "icon" name ="icon">
     
     <input type="SUBMIT" id = "submit" name ="submit"  value = "Send" required/>      
   
